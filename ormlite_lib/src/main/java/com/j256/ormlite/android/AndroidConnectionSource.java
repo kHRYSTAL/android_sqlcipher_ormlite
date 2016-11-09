@@ -1,11 +1,9 @@
 package com.j256.ormlite.android;
 
-import android.text.TextUtils;
-
 import java.sql.SQLException;
 
-import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
 import com.j256.ormlite.db.DatabaseType;
@@ -26,7 +24,6 @@ import com.j256.ormlite.support.DatabaseConnectionProxyFactory;
  */
 public class AndroidConnectionSource extends BaseConnectionSource implements ConnectionSource {
 
-
 	private static final Logger logger = LoggerFactory.getLogger(AndroidConnectionSource.class);
 
 	private final SQLiteOpenHelper helper;
@@ -36,16 +33,13 @@ public class AndroidConnectionSource extends BaseConnectionSource implements Con
 	private final DatabaseType databaseType = new SqliteAndroidDatabaseType();
 	private static DatabaseConnectionProxyFactory connectionProxyFactory;
 	private boolean cancelQueriesEnabled = false;
-	private String key;
 
-	public AndroidConnectionSource(SQLiteOpenHelper helper, String key) {
-		this.key = key;
+	public AndroidConnectionSource(SQLiteOpenHelper helper) {
 		this.helper = helper;
 		this.sqliteDatabase = null;
 	}
 
-	public AndroidConnectionSource(SQLiteDatabase sqliteDatabase, String key) {
-		this.key = key;
+	public AndroidConnectionSource(SQLiteDatabase sqliteDatabase) {
 		this.helper = null;
 		this.sqliteDatabase = sqliteDatabase;
 	}
@@ -55,7 +49,7 @@ public class AndroidConnectionSource extends BaseConnectionSource implements Con
 		 * We have to use the read-write connection because getWritableDatabase() can call close on
 		 * getReadableDatabase() in the future. This has something to do with Android's SQLite connection management.
 		 * 
-		 * See android docs: http://developer.android.com/reference/info.guardianproject.database.sqlite/SQLiteOpenHelper.html
+		 * See android docs: http://developer.android.com/reference/android/database/sqlite/SQLiteOpenHelper.html
 		 */
 		return getReadWriteConnection();
 	}
@@ -69,8 +63,7 @@ public class AndroidConnectionSource extends BaseConnectionSource implements Con
 			SQLiteDatabase db;
 			if (sqliteDatabase == null) {
 				try {
-					// // TODO: 16/11/8 need key
-					db = helper.getWritableDatabase(TextUtils.isEmpty(key) ? "" : key);
+					db = helper.getWritableDatabase();
 				} catch (android.database.SQLException e) {
 					throw SqlExceptionUtil.create("Getting a writable database from helper " + helper + " failed", e);
 				}

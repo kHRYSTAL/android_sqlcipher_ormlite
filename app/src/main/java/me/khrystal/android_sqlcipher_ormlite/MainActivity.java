@@ -7,19 +7,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.j256.ormlite.android.apptools.OpenHelperManager;
-import com.j256.ormlite.dao.BaseDaoImpl;
-import com.j256.ormlite.dao.RuntimeExceptionDao;
-import com.j256.ormlite.table.TableUtils;
-
-import net.sqlcipher.database.SQLiteDatabase;
 
 import java.sql.SQLException;
 
 public class MainActivity extends AppCompatActivity {
 
-    DBHelper mDBHelper;
-    UserDao mUserDao;
 
     EditText etUsername, etUserPasswd, etId;
     TextView tvSql;
@@ -27,13 +19,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        SQLiteDatabase.loadLibs(this);
         setContentView(R.layout.activity_main);
-        mDBHelper = new DBHelper(this);
-        try {
-            mUserDao = mDBHelper.getDao(User.class);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
         tvSql = (TextView) findViewById(R.id.tvSql);
         etUsername = (EditText) findViewById(R.id.etUsername);
         etUserPasswd = (EditText) findViewById(R.id.etPasswd);
@@ -48,8 +35,11 @@ public class MainActivity extends AppCompatActivity {
             User user = new User();
             user.username = name;
             user.password = passwd;
+            user.clazz = 9;
+            user.age = 22;
             try {
-                mUserDao.create(user);
+                DBHelper.getManager().getDao(User.class).create(user);
+                DBHelper.getManager().close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -62,12 +52,21 @@ public class MainActivity extends AppCompatActivity {
             Long id = new Long(strId);
             User user = null;
             try {
-                user = mUserDao.queryForId(id);
+                UserDao userDao = DBHelper.getManager().getDao(User.class);
+                user = userDao.queryForId(id);
+                DBHelper.getManager().close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
             if (user != null)
-                tvSql.setText("Name:" + user.username + ",Passwd:" + user.password);
+                tvSql.setText("Name:" + user.username + ",Passwd:" + user.password + ", Gender:" + user.gender
+                    + "class:"  + user.clazz + "age:" + user.age);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DBHelper.getManager().close();
     }
 }

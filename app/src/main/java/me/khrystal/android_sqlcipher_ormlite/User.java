@@ -11,10 +11,12 @@ import com.j256.ormlite.table.DatabaseTable;
  * email: 723526676@qq.com
  */
 
-@DatabaseTable(daoClass = UserDao.class, tableName = "usertable")
+@DatabaseTable(daoClass = UserDao.class, tableName = User.TAB_NAME)
 public class User {
 
-    @DatabaseField(columnName = "userId", id = true)
+    public static final String TAB_NAME = "usertable";
+
+    @DatabaseField(columnName = "uid", generatedId = true)
     public long id;
 
     @DatabaseField(columnName = "username")
@@ -22,4 +24,15 @@ public class User {
 
     @DatabaseField(columnName = "password")
     public String password;
+
+    /** 新增字段 性别*/
+    @DatabaseField(columnName = "gender", defaultValue = "1")
+    public int gender;
+
+    @DatabaseField(columnName = "class")
+    public int clazz;
+
+    @DatabaseField(columnName = "age")
+    public int age;
+
 }
